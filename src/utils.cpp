@@ -39,23 +39,22 @@ namespace pyawaiter
         auto timer_it = g_timers.find(rqid);
         if (timer_it != g_timers.end())
         {
-            g_timers.erase(rqid);
-
             if (auto timer = timer_it->second.lock())
             {
                 timer->cancel();
                 timer.reset();
             }
+            g_timers.erase(rqid);
         }
 
         auto result_it = g_results.find(rqid);
         if (result_it != g_results.end())
         {
-            g_results.erase(rqid);
-
             ensure_gil();
             Py_XDECREF(result_it->second);
             release_gil();
+
+            g_results.erase(rqid);
         }
     }
 
